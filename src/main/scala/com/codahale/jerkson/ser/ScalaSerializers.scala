@@ -8,8 +8,8 @@ import org.codehaus.jackson.map._
  *
  * @author coda
  */
-class ScalaSerializers extends Serializers {
-  def findSerializer(config: SerializationConfig, javaType: JavaType, beanDesc: BeanDescription, beanProp: BeanProperty) = {
+class ScalaSerializers extends Serializers.None {
+  override def findSerializer(config: SerializationConfig, javaType: JavaType, beanDesc: BeanDescription, beanProp: BeanProperty) = {
     val ser = if (classOf[Option[_]].isAssignableFrom(beanDesc.getBeanClass)) {
         new OptionSerializer
     } else if (classOf[Map[_, _]].isAssignableFrom(beanDesc.getBeanClass)) {
