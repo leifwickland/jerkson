@@ -2,7 +2,7 @@ package com.codahale.jerkson.deser
 
 import org.codehaus.jackson.map.{DeserializationContext, JsonDeserializer}
 import org.codehaus.jackson.{JsonToken, JsonParser}
-import com.codahale.jerkson.Json.manifest2JavaType
+import com.codahale.jerkson.Json.parametricType
 import com.codahale.jerkson.AST._
 import collection.mutable.ArrayBuffer
 
@@ -19,7 +19,7 @@ class JValueDeserializer extends JsonDeserializer[Object] {
       case JsonToken.VALUE_TRUE => JBoolean(true)
       case JsonToken.VALUE_FALSE => JBoolean(false)
       case JsonToken.START_ARRAY => {
-        JArray(jp.getCodec.readValue(jp, manifest2JavaType(manifest[List[JValue]])))
+        JArray(jp.getCodec.readValue(jp, parametricType(manifest[List[JValue]])))
       }
       case JsonToken.START_OBJECT => {
         jp.nextToken()
@@ -30,7 +30,7 @@ class JValueDeserializer extends JsonDeserializer[Object] {
         while (jp.getCurrentToken != JsonToken.END_OBJECT) {
           val name = jp.getCurrentName
           jp.nextToken()
-          fields += JField(name, jp.getCodec.readValue(jp, manifest2JavaType(manifest[JValue])))
+          fields += JField(name, jp.getCodec.readValue(jp, parametricType(manifest[JValue])))
           jp.nextToken()
         }
         JObject(fields.toList)

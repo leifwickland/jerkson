@@ -2,8 +2,8 @@ package com.codahale.jerkson
 
 import org.codehaus.jackson.JsonFactory
 import org.codehaus.jackson.map.ObjectMapper
-import org.codehaus.jackson.map.`type`.TypeFactory
 import org.codehaus.jackson.`type`.JavaType
+import org.codehaus.jackson.map.`type`._
 
 trait Factory {
   /**
@@ -16,12 +16,22 @@ trait Factory {
    */
   protected val factory: JsonFactory
 
-  private[jerkson] def manifest2JavaType[A](manifest: Manifest[A]): JavaType = {
-    if (manifest.erasure.isArray) {
-      throw new IllegalArgumentException("can't handle arrays")
+  private[jerkson] def parametricType[A](implicit mf: Manifest[A]): JavaType = {
+    mf.erasure match {
+      case klass: Class[_] if klass.isArray =>
+        ArrayType.construct(SimpleType.construct(klass.getComponentType))
+      case klass: Class[_] if classOf[Seq[_]].isAssignableFrom(klass) =>
+        CollectionLikeType.construct(klass, parametricType(mf.typeArguments.head))
+      case klass: Class[_] if classOf[Set[_]].isAssignableFrom(klass) =>
+        CollectionLikeType.construct(klass, parametricType(mf.typeArguments.head))
+      case klass: Class[_] if classOf[java.util.Collection[_]].isAssignableFrom(klass) =>
+        CollectionType.construct(klass, parametricType(mf.typeArguments.head))
+      case klass: Class[_] if classOf[Map[_, _]].isAssignableFrom(klass) =>
+        MapLikeType.construct(klass, parametricType(mf.typeArguments.head), parametricType(mf.typeArguments.tail.head))
+      case klass: Class[_] if classOf[java.util.Map[_, _]].isAssignableFrom(klass) =>
+        MapType.construct(klass, parametricType(mf.typeArguments.head), parametricType(mf.typeArguments.tail.head))
+      case klass => SimpleType.construct(klass)
     }
-    TypeFactory.parametricType(manifest.erasure,
-                               manifest.typeArguments
-                               .map{m => manifest2JavaType(m)}.toArray: _*)
   }
+
 }

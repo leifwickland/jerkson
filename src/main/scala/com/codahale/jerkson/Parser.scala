@@ -76,10 +76,10 @@ trait Parser extends Factory {
         // thanks for special-casing VALUE_NULL, guys
         Option(parse(parser, mf.typeArguments.head)).asInstanceOf[A]
       } else if (mf.erasure == classOf[JValue]) {
-        val value: A = parser.getCodec.readValue(parser, manifest2JavaType(mf))
+        val value: A = parser.getCodec.readValue(parser, parametricType(mf))
         if (value == null) JNull.asInstanceOf[A] else value
       } else {
-        parser.getCodec.readValue(parser, manifest2JavaType(mf))
+        parser.getCodec.readValue(parser, parametricType(mf))
       }
     } catch {
       case e: JsonProcessingException => throw ParsingException(e)

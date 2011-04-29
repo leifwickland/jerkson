@@ -2,6 +2,7 @@ package com.codahale.jerkson.deser
 
 import org.codehaus.jackson.`type`.JavaType
 import org.codehaus.jackson.map._
+import `type`.CollectionLikeType
 import collection.generic.{MapFactory, GenericCompanion}
 import collection.MapLike
 import com.codahale.jerkson.AST.JValue
@@ -11,6 +12,25 @@ import com.codahale.jerkson.AST.JValue
  * @author coda
  */
 class ScalaDeserializers extends Deserializers.None {
+  override def findCollectionLikeDeserializer(collectionType: CollectionLikeType,
+                                              config: DeserializationConfig,
+                                              provider: DeserializerProvider,
+                                              beanDesc: BeanDescription,
+                                              prop: BeanProperty,
+                                              eDes: TypeDeserializer,
+                                              elDes: JsonDeserializer[_]) = {
+    val deser = if (elDes == null) {
+      provider.findTypedValueDeserializer(config, collectionType.getContentType, null)
+    } else {
+      elDes
+    }
+    collectionType.getRawClass match {
+      case klass: Class[_] if classOf[List[_]].isAssignableFrom(klass) =>
+        new SeqDeserializer[Seq](Seq, collectionType, deser.asInstanceOf[JsonDeserializer[Object]])
+      case _ => null
+    }
+  }
+
   override def findBeanDeserializer(javaType: JavaType, config: DeserializationConfig,
                             provider: DeserializerProvider, beanDesc: BeanDescription,
                             property: BeanProperty) = {
