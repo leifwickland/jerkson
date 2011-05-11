@@ -39,6 +39,8 @@ class ScalaDeserializers extends Deserializers.None {
       new BigDecimalDeserializer
     } else if (javaType.getRawClass == classOf[Either[_,_]]) {
       new EitherDeserializer(config, javaType, provider)
+    } else if (classOf[Enumeration].isAssignableFrom(javaType.getRawClass)) {
+      new EnumerationDeserializer(config, javaType, provider)
     } else if (classOf[Product].isAssignableFrom(javaType.getRawClass)) {
       new CaseClassDeserializer(config, javaType, provider)
     } else null

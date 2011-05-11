@@ -218,6 +218,16 @@ class JsonGenerationSpec extends Specification {
       generate(Right("woo")) must beEqualTo("\"woo\"")
     }
   }
+
+  "An Enumeration" should {
+    "generate a JSON string" in {
+      generate(Flavor.Weak) must beEqualTo("\"Weak\"")
+    }
+  }
+}
+
+object Flavor extends Enumeration {
+  val Weak, Strong = Value
 }
 
 case class CaseClassWithLazyVal(id: Long) {

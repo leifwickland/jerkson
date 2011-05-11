@@ -295,6 +295,12 @@ class JsonParsingSpec extends Specification {
       parse[ClassWithMap]("""{"properties": {"yay": 400}}""") must beEqualTo(ClassWithMap(Map("yay" -> 400L)))
     }
   }
+
+  "Parsing a JSON int as an Enumeration" should {
+    "return an Enumeration#Value" in {
+      parse[Flavor.type]("\"Weak\"") must beEqualTo(Flavor.Weak)
+    }
+  }
 }
 
 case class Person(id: Long, name: String)

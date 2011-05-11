@@ -11,11 +11,13 @@ import org.codehaus.jackson.map._
 class ScalaSerializers extends Serializers {
   def findSerializer(config: SerializationConfig, javaType: JavaType, beanDesc: BeanDescription, beanProp: BeanProperty) = {
     val ser = if (classOf[Option[_]].isAssignableFrom(beanDesc.getBeanClass)) {
-        new OptionSerializer
+      new OptionSerializer
+    } else if (classOf[Enumeration#Value].isAssignableFrom(beanDesc.getBeanClass)) {
+      new EnumerationSerializer
     } else if (classOf[Map[_, _]].isAssignableFrom(beanDesc.getBeanClass)) {
       new MapSerializer
     } else if (classOf[Iterable[_]].isAssignableFrom(beanDesc.getBeanClass)) {
-        new IterableSerializer
+      new IterableSerializer
     } else if (classOf[Iterator[_]].isAssignableFrom(beanDesc.getBeanClass)) {
       new IteratorSerializer
     } else if (classOf[JValue].isAssignableFrom(beanDesc.getBeanClass)) {
